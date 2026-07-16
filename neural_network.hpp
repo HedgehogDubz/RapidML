@@ -20,8 +20,8 @@ private:
     std::vector<double> weights_;
     std::vector<double> biases_;
 
-    std::vector<size_t> weight_layer_starts_;
-    std::vector<size_t> bias_layer_starts_;
+    std::vector<size_t> weight_layer_ends_;
+    std::vector<size_t> bias_layer_ends_;
 
     std::mt19937 generator_{std::random_device{}()};
     std::uniform_real_distribution<double> real_distribution_{-1.0, 1.0};
