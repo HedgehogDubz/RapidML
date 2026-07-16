@@ -1,19 +1,69 @@
 #include "neural_network.hpp"
 
-#include <vector>
+#include <algorithm>
+#include <ranges>
+#include <utility>
 
-class neural_network {
-private:
-    int inputs_;
-    std::vector<int> hidden_layers_;
-    int outputs_;
-    std::vector<std::vector<double>> weights_;
-    std::vector<std::vector<double>> biases_;
+neural_network::neural_network(size_t inputs, std::vector<size_t> hidden_layers,
+                               size_t outputs, bool init_random_weights,
+                               bool init_random_biases)
+    : inputs_{inputs},
+      hidden_layers_{std::move(hidden_layers)},
+      outputs_{outputs}
+{
+    // Compute total weight/bias counts and the per-layer end offsets.
+    size_t weights_size = 0;
+    size_t biases_size = 0;
+    weight_layer_starts_.reserve(hidden_layers_.size() + 1);
+    bias_layer_starts_.reserve(hidden_layers_.size() + 1);
 
-public:
-    neural_network(int inputs, std::vector<int> hidden_layers, int outputs)
-        : inputs_{inputs}, hidden_layers_{hidden_layers}, outputs_{outputs} {}
-    ~neural_network() {}
+    for (size_t i{0}; i < hidden_layers_.size() + 1; ++i)
+    {
+        const size_t previous_size =
+            (i == 0) ? inputs_ : hidden_layers_[i - 1];
+        const size_t current_size =
+            (i == hidden_layers_.size()) ? outputs_ : hidden_layers_[i];
 
-    std::vector<int> feed_forward(std::vector<double> input) {}
-};
+        weights_size += previous_size * current_size;
+        weight_layer_starts_.push_back(weights_size);
+        biases_size += current_size;
+        bias_layer_starts_.push_back(biases_size);
+    }
+    weights_.resize(weights_size);
+    biases_.resize(biases_size);
+
+    if (init_random_weights)
+    {
+        size_t cur_weights_start = 0;
+        for (size_t cur_layer_start : weight_layer_starts_)
+        {
+            auto start = weights_.begin() + cur_weights_start;
+            auto end = weights_.begin() + cur_layer_start;
+            std::ranges::generate(
+                start, end, [this, cur_layer_start, cur_weights_start]()
+                { return random() * 2 / (cur_layer_start - cur_weights_start); });
+
+            cur_weights_start = cur_layer_start;
+        }
+    }
+    if (init_random_biases)
+    {
+        size_t cur_biases_start = 0;
+        for (size_t cur_layer_start : bias_layer_starts_)
+        {
+            auto start = biases_.begin() + cur_biases_start;
+            auto end = biases_.begin() + cur_layer_start;
+            std::ranges::generate(
+                start, end, [this, cur_layer_start, cur_biases_start]()
+                { return random() * 2 / (cur_layer_start - cur_biases_start); });
+
+            cur_biases_start = cur_layer_start;
+        }
+    }
+}
+
+std::vector<double> neural_network::feed_forward(std::vector<double> input) const
+{
+    // TODO: implement the forward pass.
+    return {};
+}
