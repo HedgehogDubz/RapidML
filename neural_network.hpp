@@ -4,7 +4,11 @@
 #include <random>
 #include <vector>
 
-enum class init_type { zeroes, He, Xavier };
+enum class init_type
+{
+    zeroes,
+    He
+};
 
 class neural_network
 {
@@ -27,8 +31,8 @@ private:
 
 public:
     neural_network(size_t inputs, std::vector<size_t> hidden_layers,
-                   size_t outputs, bool init_random_weights,
-                   bool init_random_biases);
+                   size_t outputs, init_type init_random_weights,
+                   init_type init_random_biases);
 
     std::vector<double> feed_forward(std::vector<double> input) const;
 };

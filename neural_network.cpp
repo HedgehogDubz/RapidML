@@ -5,8 +5,8 @@
 #include <utility>
 
 neural_network::neural_network(size_t inputs, std::vector<size_t> hidden_layers,
-                               size_t outputs, bool init_random_weights,
-                               bool init_random_biases)
+                               size_t outputs, init_type init_weights_type,
+                               init_type init_biases_type)
     : inputs_{inputs},
       hidden_layers_{std::move(hidden_layers)},
       outputs_{outputs}
@@ -32,7 +32,7 @@ neural_network::neural_network(size_t inputs, std::vector<size_t> hidden_layers,
     weights_.resize(weights_size);
     biases_.resize(biases_size);
 
-    if (init_random_weights)
+    if (init_weights_type == init_type::He)
     {
         size_t cur_weights_start = 0;
         for (size_t cur_layer_start : weight_layer_starts_)
@@ -46,7 +46,7 @@ neural_network::neural_network(size_t inputs, std::vector<size_t> hidden_layers,
             cur_weights_start = cur_layer_start;
         }
     }
-    if (init_random_biases)
+    if (init_biases_type == init_type::He)
     {
         size_t cur_biases_start = 0;
         for (size_t cur_layer_start : bias_layer_starts_)
